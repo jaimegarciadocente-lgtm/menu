@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador de Menú Semanal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-amber-50/40 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Encabezado -->
+    <header class="bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
+                    <i class="fa-solid fa-utensils text-2xl text-amber-300 animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Planificador Gastronómico</h1>
+                    <p class="text-emerald-100 text-sm">Organiza tus desayunos y almuerzos (Lunes a Sábado)</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="resetMenu()" class="px-4 py-2 bg-white/10 hover:bg-white/20 transition rounded-lg text-sm font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Reiniciar Plan
+                </button>
+                <button onclick="window.print()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 transition rounded-lg text-sm font-semibold flex items-center gap-2 text-slate-900 shadow">
+                    <i class="fa-solid fa-print"></i> Imprimir Menú
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow">
+        
+        <!-- Alerta informativa -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-8 flex items-start gap-3">
+            <i class="fa-solid fa-circle-info text-emerald-600 text-xl mt-0.5"></i>
+            <div>
+                <h3 class="font-semibold text-emerald-900 text-sm sm:text-base">¡Personaliza tu menú semanal!</h3>
+                <p class="text-emerald-700 text-xs sm:text-sm mt-0.5">
+                    Selecciona un día de la semana para detallar sus comidas. Utiliza los <strong>menús desplegables (dropdowns)</strong> dentro de cada plato para cambiar la receta por otra de tu preferencia según la categoría.
+                </p>
+            </div>
+        </div>
+
+        <!-- Selector de Días (Navegación Móvil y Desktop) -->
+        <div class="mb-8">
+            <label class="block text-sm font-semibold text-slate-500 mb-2 sm:hidden">Seleccionar día:</label>
+            <div class="sm:hidden w-full">
+                <select id="dayMobileSelector" onchange="selectDay(this.value)" class="w-full bg-white border border-slate-200 rounded-lg py-3 px-4 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <option value="lunes">Lunes 🍳</option>
+                    <option value="martes">Martes 🍝</option>
+                    <option value="miercoles">Miércoles 🥣</option>
+                    <option value="jueves">Jueves 🥩</option>
+                    <option value="viernes">Viernes 🐟</option>
+                    <option value="sabado">Sábado 🍗</option>
+                </select>
+            </div>
+
+            <!-- Navegación de pestañas para pantallas medianas/grandes -->
+            <div class="hidden sm:flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100 gap-1">
+                <button onclick="selectDay('lunes')" id="tab-lunes" class="day-tab flex-1 py-3 px-2 rounded-xl text-center font-medium text-sm transition-all duration-200 flex flex-col items-center gap-1">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Día 1</span>
+                    <span class="text-base font-semibold">Lunes</span>
+                </button>
+                <button onclick="selectDay('martes')" id="tab-martes" class="day-tab flex-1 py-3 px-2 rounded-xl text-center font-medium text-sm transition-all duration-200 flex flex-col items-center gap-1">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Día 2</span>
+                    <span class="text-base font-semibold">Martes</span>
+                </button>
+                <button onclick="selectDay('miercoles')" id="tab-miercoles" class="day-tab flex-1 py-3 px-2 rounded-xl text-center font-medium text-sm transition-all duration-200 flex flex-col items-center gap-1">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Día 3</span>
+                    <span class="text-base font-semibold">Miércoles</span>
+                </button>
+                <button onclick="selectDay('jueves')" id="tab-jueves" class="day-tab flex-1 py-3 px-2 rounded-xl text-center font-medium text-sm transition-all duration-200 flex flex-col items-center gap-1">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Día 4</span>
+                    <span class="text-base font-semibold">Jueves</span>
+                </button>
+                <button onclick="selectDay('viernes')" id="tab-viernes" class="day-tab flex-1 py-3 px-2 rounded-xl text-center font-medium text-sm transition-all duration-200 flex flex-col items-center gap-1">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Día 5</span>
+                    <span class="text-base font-semibold">Viernes</span>
+                </button>
+                <button onclick="selectDay('sabado')" id="tab-sabado" class="day-tab flex-1 py-3 px-2 rounded-xl text-center font-medium text-sm transition-all duration-200 flex flex-col items-center gap-1">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Día 6</span>
+                    <span class="text-base font-semibold">Sábado</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel de Edición Interactivo (Dos columnas) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Tarjeta Detalle del Día Seleccionado -->
+            <div class="lg:col-span-8 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                    <div>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider">Planificación Activa</span>
+                        <h2 id="selectedDayTitle" class="text-3xl font-bold text-slate-800 capitalize mt-1">Lunes</h2>
+                    </div>
+                    <div id="dayStatusBadge" class="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl text-xs font-medium border border-amber-200">
+                        <i class="fa-solid fa-utensils"></i> Personalizable
+                    </div>
+                </div>
+
+                <!-- Bloques de Comida -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Tarjeta Desayuno -->
+                    <div class="bg-amber-50/30 rounded-2xl p-5 border border-amber-100/60 hover:shadow-md transition duration-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-lg uppercase flex items-center gap-1.5">
+                                    <i class="fa-solid fa-mug-saucer"></i> Desayuno
+                                </span>
+                                <span class="text-slate-400 text-xs font-medium"><i class="fa-solid fa-egg text-amber-500"></i> Proteína de Huevo</span>
+                            </div>
+                            
+                            <!-- Dropdown de Desayuno -->
+                            <div class="mb-4">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Elegir Plato de Desayuno:</label>
+                                <div class="relative">
+                                    <select id="breakfastDropdown" onchange="updateSelectedMeal('desayuno', this.value)" class="w-full bg-white border border-slate-200 hover:border-emerald-500 text-slate-800 font-semibold rounded-xl py-2.5 pl-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 transition cursor-pointer text-sm">
+                                        <!-- Opciones generadas por JS -->
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resumen Visual del Desayuno -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-100 mt-2">
+                                <h4 id="breakfastName" class="font-bold text-slate-800 text-base mb-1">Cargando...</h4>
+                                <p id="breakfastDesc" class="text-xs text-slate-500 leading-relaxed">Cargando descripción...</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100/80 flex items-center justify-between text-xs text-slate-400">
+                            <span>Bebida recomendada:</span>
+                            <span class="font-medium text-slate-600">Café o Jugo de Naranja</span>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Almuerzo -->
+                    <div class="bg-emerald-50/30 rounded-2xl p-5 border border-emerald-100/60 hover:shadow-md transition duration-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-lg uppercase flex items-center gap-1.5">
+                                    <i class="fa-solid fa-bowl-food"></i> Almuerzo
+                                </span>
+                                <span id="lunchCategoryBadge" class="text-slate-500 text-xs font-semibold px-2 py-0.5 bg-white border border-slate-100 rounded-md">Categoría</span>
+                            </div>
+
+                            <!-- Dropdown de Almuerzo -->
+                            <div class="mb-4">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Elegir Plato de Almuerzo:</label>
+                                <div class="relative">
+                                    <select id="lunchDropdown" onchange="updateSelectedMeal('almuerzo', this.value)" class="w-full bg-white border border-slate-200 hover:border-emerald-500 text-slate-800 font-semibold rounded-xl py-2.5 pl-3 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 transition cursor-pointer text-sm">
+                                        <!-- Opciones generadas por JS divididas por Optgroups -->
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resumen Visual del Almuerzo -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-100 mt-2">
+                                <h4 id="lunchName" class="font-bold text-slate-800 text-base mb-1">Cargando...</h4>
+                                <p id="lunchDesc" class="text-xs text-slate-500 leading-relaxed">Cargando descripción...</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100/80 flex items-center justify-between text-xs text-slate-400">
+                            <span>Acompañamiento sugerido:</span>
+                            <span class="font-medium text-slate-600">Agua saborizada o Té helado</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tabla de Resumen Semanal Rápido -->
+            <div class="lg:col-span-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-emerald-600"></i> Resumen Semanal
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">Haz clic en cualquier fila para saltar directamente a ese día y editar su menú.</p>
+                
+                <div class="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                    <!-- Filas dinámicas de la semana -->
+                    <div id="weekSummaryContainer" class="divide-y divide-slate-100">
+                        <!-- Renderizado por JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Seccion de Información Nutricional / Glosario de Platos Disponibles -->
+        <section class="mt-12 bg-slate-900 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            <div class="relative z-10">
+                <h3 class="text-xl sm:text-2xl font-bold mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-leaf text-emerald-400"></i> Variedad & Balance Nutricional
+                </h3>
+                <p class="text-slate-400 text-sm max-w-2xl mb-6">
+                    Este menú interactivo está diseñado bajo los requerimientos solicitados, abarcando proteínas de calidad e hidratos de carbono necesarios para el día a día.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <h4 class="font-bold text-amber-300 mb-2"><i class="fa-solid fa-egg"></i> Desayunos Saludables</h4>
+                        <p class="text-slate-300 text-xs">A base de huevos preparados de formas variadas y ligeras para asegurar la dosis de energía y proteína desde la primera hora.</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <h4 class="font-bold text-emerald-400 mb-2"><i class="fa-solid fa-bowl-rice"></i> Almuerzos Completos</h4>
+                        <p class="text-slate-300 text-xs">Opciones distribuidas entre <strong>pollo, pastas, sopas reconfortantes, carnes selectas y pescado fresco</strong> para evitar la monotonía culinaria.</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <h4 class="font-bold text-teal-300 mb-2"><i class="fa-solid fa-heart-pulse"></i> Flexibilidad Total</h4>
+                        <p class="text-slate-300 text-xs">Usa los dropdowns en cada día para adaptar el menú si deseas repetir alguna categoría de tu preferencia (ej. comer pescado dos veces).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 border-t border-slate-200 mt-16 py-6">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-500 text-xs sm:text-sm">
+            <p>© 2026 Planificador de Comidas. Diseñado para organizar tu alimentación semanal de manera dinámica y saludable.</p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA DE JAVASCRIPT -->
+    <script>
+        // --- 1. BASE DE DATOS DE PLATOS DISPONIBLES ---
+        const breakfastRecipes = [
+            { id: 'b1', name: '🍳 Huevos Revueltos con Tomate y Cebolla', category: 'Huevos', description: 'Huevos revueltos preparados al estilo criollo (Hogao) con tomate, cebolla picada y acompañados de una porción de tostada integral.' },
+            { id: 'b2', name: '🍳 Huevos Rancheros Clásicos', category: 'Huevos', description: 'Dos huevos estrellados servidos sobre tortillas de maíz con salsa ranchera ligeramente picante y frijoles refritos de guarnición.' },
+            { id: 'b3', name: '🍳 Omelette de Espinacas y Queso', category: 'Huevos', description: 'Omelette de claras o huevo entero relleno de hojas de espinaca baby y queso mozzarella bajo en grasa derretido.' },
+            { id: 'b4', name: '🍳 Tostada de Huevo Pochado y Aguacate', category: 'Huevos', description: 'Huevo pochado perfectamente cocido colocado sobre una capa generosa de aguacate triturado en pan de masa madre tostado.' },
+            { id: 'b5', name: '🍳 Huevos Fritos con Arepa y Queso', category: 'Huevos', description: 'Dos huevos fritos acompañados de una arepa de maíz blanco asada tradicional con un toque de queso blanco rallado.' },
+            { id: 'b6', name: '🍳 Shakshuka de Huevos en Salsa de Tomate', category: 'Huevos', description: 'Huevos escalfados en una aromática salsa de tomate espesa, pimientos asados, cebollas y especias del medio oriente.' }
+        ];
+
+        const lunchRecipes = {
+            'Pollo': [
+                { id: 'l1', name: '🍗 Pechuga de Pollo a la Plancha con Puré', category: 'Pollo', description: 'Pechuga de pollo fileteada y marinada con finas hierbas, cocinada a la plancha. Servida con puré de papa criolla y ensalada verde.' },
+                { id: 'l2', name: '🍗 Arroz con Pollo Tradicional', category: 'Pollo', description: 'Delicioso arroz cocido a fuego lento con pollo desmenuzado, verduras mixtas picadas (zanahoria, guisantes, maíz) y plátano maduro asado.' }
+            ],
+            'Pasta': [
+                { id: 'l3', name: '🍝 Pasta a la Boloñesa Clásica', category: 'Pasta', description: 'Espagueti al dente cubierto con una suculenta salsa boloñesa casera de carne molida magra de res, tomates frescos y queso parmesano rallado.' },
+                { id: 'l4', name: '🍝 Pasta Alfredo con Tiras de Pollo', category: 'Pasta', description: 'Fettuccine bañados en una cremosa salsa de crema de leche y mantequilla ligera, acompañados con trozos de pechuga de pollo a la plancha y brócoli.' }
+            ],
+            'Sopas': [
+                { id: 'l5', name: '🥣 Sopa de Lentejas Casera con Tocineta', category: 'Sopas', description: 'Consistente sopa de lentejas guisadas con trozos de papa, zanahoria y sazonada con trocitos crujientes de tocino ahumado magro.' },
+                { id: 'l6', name: '🥣 Caldo de Gallina Criolla', category: 'Sopas', description: 'Sabor casero y reparador con una pieza de gallina cocinada con papa, yuca, cilantro fresco bien picado y cebolla verde.' }
+            ],
+            'Carnes': [
+                { id: 'l7', name: '🥩 Lomo de Res en Salsa de Champiñones', category: 'Carnes', description: 'Medallón de lomo de res cocinado al término deseado, bañado en una deliciosa salsa cremosa de champiñones y acompañado de arroz blanco.' },
+                { id: 'l8', name: '🥩 Carne Asada con Chimichurri', category: 'Carnes', description: 'Filete de res asado en parrilla, cubierto con salsa chimichurri tradicional (perejil, ajo, vinagre y aceite). Acompañado de yuca cocida.' }
+            ],
+            'Pescado': [
+                { id: 'l9', name: '🐟 Filete de Pescado Blanco al Ajillo', category: 'Pescado', description: 'Filete de pescado fresco sellado a la plancha con una abundante salsa de ajo dorado y mantequilla, acompañado de patacones de plátano verde.' },
+                { id: 'l10', name: '🐟 Salmón al Horno con Verduras al Vapor', category: 'Pescado', description: 'Filete de salmón de primera sazonado con limón y eneldo, horneado y servido junto a un mix de espárragos, calabacines y zanahorias al vapor.' }
+            ]
+        };
+
+        // --- 2. PLAN SEMANAL INICIAL (ESTADO POR DEFECTO) ---
+        const defaultWeeklyPlan = {
+            lunes: { breakfastId: 'b1', lunchId: 'l1' },       // Desayuno 1, Almuerzo Pollo 1
+            martes: { breakfastId: 'b2', lunchId: 'l3' },      // Desayuno 2, Almuerzo Pasta 1
+            miercoles: { breakfastId: 'b3', lunchId: 'l5' },   // Desayuno 3, Almuerzo Sopa 1
+            jueves: { breakfastId: 'b4', lunchId: 'l7' },      // Desayuno 4, Almuerzo Carne 1
+            viernes: { breakfastId: 'b5', lunchId: 'l9' },     // Desayuno 5, Almuerzo Pescado 1
+            sabado: { breakfastId: 'b6', lunchId: 'l2' }       // Desayuno 6, Almuerzo Pollo 2 (Variado)
+        };
+
+        // Cargar plan guardado en LocalStorage o usar el por defecto
+        let currentWeeklyPlan = JSON.parse(localStorage.getItem('userWeeklyPlan')) || { ...defaultWeeklyPlan };
+        let activeDay = 'lunes';
+
+        // --- 3. INICIALIZAR LA APLICACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateDropdowns();
+            selectDay(activeDay);
+            renderWeekSummary();
+        });
+
+        // Llenar dinámicamente las opciones en los Dropdowns (Desplegables)
+        function populateDropdowns() {
+            const breakfastSelect = document.getElementById('breakfastDropdown');
+            const lunchSelect = document.getElementById('lunchDropdown');
+
+            // Limpiar
+            breakfastSelect.innerHTML = '';
+            lunchSelect.innerHTML = '';
+
+            // Llenar Desayunos (Huevos)
+            breakfastRecipes.forEach(recipe => {
+                const option = document.createElement('option');
+                option.value = recipe.id;
+                option.textContent = recipe.name;
+                breakfastSelect.appendChild(option);
+            });
+
+            // Llenar Almuerzos organizados en optgroups (Categorías solicitadas)
+            for (const category in lunchRecipes) {
+                const group = document.createElement('optgroup');
+                group.label = `Categoría: ${category}`;
+                
+                lunchRecipes[category].forEach(recipe => {
+                    const option = document.createElement('option');
+                    option.value = recipe.id;
+                    option.textContent = recipe.name;
+                    group.appendChild(option);
+                });
+                lunchSelect.appendChild(group);
+            }
+        }
+
+        // --- 4. CONTROLADORES DE INTERACCIÓN ---
+
+        // Seleccionar un día de la semana
+        function selectDay(day) {
+            activeDay = day;
+
+            // Actualizar Selectores de UI (Mobile y Desktop Pestañas)
+            document.getElementById('dayMobileSelector').value = day;
+            
+            document.querySelectorAll('.day-tab').forEach(tab => {
+                tab.classList.remove('bg-emerald-600', 'text-white', 'shadow-md');
+                tab.classList.add('bg-white', 'text-slate-600', 'hover:bg-slate-50');
+            });
+
+            const activeTab = document.getElementById(`tab-${day}`);
+            if (activeTab) {
+                activeTab.classList.remove('bg-white', 'text-slate-600', 'hover:bg-slate-50');
+                activeTab.classList.add('bg-emerald-600', 'text-white', 'shadow-md');
+            }
+
+            // Actualizar Título de la tarjeta
+            document.getElementById('selectedDayTitle').innerText = day;
+
+            // Cargar los valores configurados para este día en los Dropdowns
+            const dayConfig = currentWeeklyPlan[day];
+            document.getElementById('breakfastDropdown').value = dayConfig.breakfastId;
+            document.getElementById('lunchDropdown').value = dayConfig.lunchId;
+
+            // Actualizar vistas previas de recetas
+            updateRecipeCardDetails('desayuno', dayConfig.breakfastId);
+            updateRecipeCardDetails('almuerzo', dayConfig.lunchId);
+        }
+
+        // Actualizar detalles visuales de la receta seleccionada
+        function updateRecipeCardDetails(mealType, recipeId) {
+            if (mealType === 'desayuno') {
+                const recipe = breakfastRecipes.find(r => r.id === recipeId);
+                if (recipe) {
+                    document.getElementById('breakfastName').textContent = recipe.name.replace('🍳 ', '');
+                    document.getElementById('breakfastDesc').textContent = recipe.description;
+                }
+            } else if (mealType === 'almuerzo') {
+                // Buscar en las categorías
+                let recipe = null;
+                for (const cat in lunchRecipes) {
+                    recipe = lunchRecipes[cat].find(r => r.id === recipeId);
+                    if (recipe) break;
+                }
+                if (recipe) {
+                    document.getElementById('lunchName').textContent = recipe.name.replace(/^[^\s]+\s/, ''); // Quita el emoji
+                    document.getElementById('lunchDesc').textContent = recipe.description;
+                    
+                    const badge = document.getElementById('lunchCategoryBadge');
+                    badge.textContent = recipe.category;
+                    // Colores por categoría de almuerzo
+                    badge.className = "text-xs font-semibold px-2 py-0.5 rounded-md border ";
+                    if (recipe.category === 'Pollo') badge.className += "bg-amber-50 text-amber-700 border-amber-200";
+                    else if (recipe.category === 'Pasta') badge.className += "bg-indigo-50 text-indigo-700 border-indigo-200";
+                    else if (recipe.category === 'Sopas') badge.className += "bg-orange-50 text-orange-700 border-orange-200";
+                    else if (recipe.category === 'Carnes') badge.className += "bg-red-50 text-red-700 border-red-200";
+                    else if (recipe.category === 'Pescado') badge.className += "bg-cyan-50 text-cyan-700 border-cyan-200";
+                }
+            }
+        }
+
+        // Cuando el usuario cambia una opción en algún dropdown
+        function updateSelectedMeal(mealType, newId) {
+            if (mealType === 'desayuno') {
+                currentWeeklyPlan[activeDay].breakfastId = newId;
+            } else {
+                currentWeeklyPlan[activeDay].lunchId = newId;
+            }
+            
+            // Guardar estado localmente
+            localStorage.setItem('userWeeklyPlan', JSON.stringify(currentWeeklyPlan));
+            
+            // Actualizar vista
+            updateRecipeCardDetails(mealType, newId);
+            renderWeekSummary();
+        }
+
+        // Renderizar tabla/grilla de resumen de la derecha
+        function renderWeekSummary() {
+            const container = document.getElementById('weekSummaryContainer');
+            container.innerHTML = '';
+
+            const daysOrdered = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+
+            daysOrdered.forEach(day => {
+                const bConfig = breakfastRecipes.find(r => r.id === currentWeeklyPlan[day].breakfastId);
+                
+                let lConfig = null;
+                for (const cat in lunchRecipes) {
+                    lConfig = lunchRecipes[cat].find(r => r.id === currentWeeklyPlan[day].lunchId);
+                    if (lConfig) break;
+                }
+
+                // Generar ícono según categoría de almuerzo
+                let categoryIcon = 'fa-plate-wheat';
+                if (lConfig.category === 'Pollo') categoryIcon = 'fa-drumstick-bite text-amber-500';
+                else if (lConfig.category === 'Pasta') categoryIcon = 'fa-bowl-food text-indigo-500';
+                else if (lConfig.category === 'Sopas') categoryIcon = 'fa-soup text-orange-500';
+                else if (lConfig.category === 'Carnes') categoryIcon = 'fa-bacon text-red-500';
+                else if (lConfig.category === 'Pescado') categoryIcon = 'fa-fish text-cyan-500';
+
+                const isSelected = activeDay === day ? 'bg-emerald-50/70 border-l-4 border-emerald-600' : 'hover:bg-slate-50';
+
+                const dayRow = document.createElement('div');
+                dayRow.className = `p-3 flex items-center justify-between cursor-pointer transition ${isSelected}`;
+                dayRow.onclick = () => selectDay(day);
+
+                dayRow.innerHTML = `
+                    <div class="flex-grow">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800 text-sm capitalize">${day}</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400">Ver Detalles</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-1.5">
+                            <div class="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                                <span class="text-amber-500 font-semibold">D:</span> ${bConfig ? bConfig.name.replace('🍳 ', '') : ''}
+                            </div>
+                            <div class="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                                <i class="fa-solid ${categoryIcon} text-[10px]"></i> <span class="font-semibold text-slate-700">A:</span> ${lConfig ? lConfig.name.substring(3) : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(dayRow);
+            });
+        }
+
+        // Reiniciar menú al estado predeterminado
+        function resetMenu() {
+            if (confirm('¿Estás seguro de que deseas restablecer el menú a su configuración predeterminada balanceada?')) {
+                currentWeeklyPlan = { ...defaultWeeklyPlan };
+                localStorage.setItem('userWeeklyPlan', JSON.stringify(currentWeeklyPlan));
+                selectDay(activeDay);
+                renderWeekSummary();
+            }
+        }
+    </script>
+</body>
+</html>
